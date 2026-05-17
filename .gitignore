@@ -12,7 +12,11 @@ build/
 venv/
 env/
 .venv/
-.env/
+
+# Environment variables & API Keys
+.env
+.env.local
+.env.*
 
 # IDE
 .vscode/
