@@ -5,6 +5,7 @@
 
 from typing import List, Optional
 import numpy as np
+from loguru import logger
 
 from app.core.config import settings
 
@@ -31,16 +32,16 @@ class EmbeddingManager:
             if not hf_mirror:
                 os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
 
-            print(f"正在加载嵌入模型: {self.model_name} ...")
+            logger.info(f"正在加载嵌入模型: {self.model_name} ...")
             self._model = SentenceTransformer(
                 self.model_name,
                 device=self.device
             )
             self._dimension = self._model.get_sentence_embedding_dimension()
-            print(f"嵌入模型加载完成，向量维度: {self._dimension}")
+            logger.info(f"嵌入模型加载完成，向量维度: {self._dimension}")
         except Exception as e:
-            print(f"加载嵌入模型失败: {e}")
-            print("使用简单的词袋模型作为回退方案...")
+            logger.warning(f"加载嵌入模型失败: {e}")
+            logger.warning("使用简单的词袋模型作为回退方案...")
             self._model = None
 
 
@@ -94,17 +95,27 @@ class EmbeddingManager:
         return embeddings
 
     def _simple_tokenize(self, text: str) -> List[str]:
-        """简单分词"""
+        """简单分词（优先使用jieba进行中文分词）"""
         import re
-        # 提取中文词（单字）和英文词
         tokens = []
+
+        # 使用jieba进行中文分词
+        try:
+            import jieba
+            zh_text = re.sub(r'[a-zA-Z0-9]+', ' ', text)
+            for word in jieba.cut(zh_text):
+                word = word.strip()
+                if word and len(word) >= 1:
+                    tokens.append(word)
+        except ImportError:
+            for char in text:
+                if '\u4e00' <= char <= '\u9fff':
+                    tokens.append(char)
+
         # 英文单词
         for token in re.findall(r'[a-zA-Z]+', text):
             tokens.append(token.lower())
-        # 中文字符
-        for char in text:
-            if '\u4e00' <= char <= '\u9fff':
-                tokens.append(char)
+
         return tokens
 
     @property

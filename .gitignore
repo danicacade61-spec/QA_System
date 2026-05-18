@@ -1,5 +1,5 @@
 # Python
-__pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 *.so
@@ -41,3 +41,19 @@ test_output.txt
 # Documents (generated)
 midterm_report.docx
 midterm_report.html
+中期报告_*.docx
+中期报告_*.pptx
+*.png
+
+# Temp files
+_claude/
+_temp_*.py
+_template.md
+_opening_report.md
+_claude/
+.claude/
+
+# Generated reports
+_opening_report.md
+
+

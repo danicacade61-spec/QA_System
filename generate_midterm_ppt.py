@@ -620,9 +620,9 @@ def create_ppt():
                  font_size=13, color=RGBColor(0xBF, 0xDB, 0xFE), alignment=PP_ALIGN.CENTER)
     
     # ===== 保存 =====
-    output_path = os.path.join(os.path.dirname(__file__), "中期报告_基于大语言模型的智能问答方法研究与实现.pptx")
+    output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "中期报告_基于大语言模型的智能问答方法研究与实现.pptx")
     prs.save(output_path)
-    print(f"✅ PPT已生成: {output_path}")
+    print(f"[OK] PPT generated: {output_path}")
 
 
 if __name__ == "__main__":

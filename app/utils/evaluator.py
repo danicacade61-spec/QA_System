@@ -9,6 +9,7 @@ from typing import List, Dict, Any, Optional
 from pathlib import Path
 
 import numpy as np
+from loguru import logger
 
 from app.core.config import settings
 
@@ -117,7 +118,7 @@ class QAEvaluator:
         results = []
         total_start = time.time()
 
-        print(f"开始批量评估，共 {len(test_data)} 个测试样本...")
+        logger.info(f"开始批量评估，共 {len(test_data)} 个测试样本...")
         for i, item in enumerate(test_data):
             question = item.get("question", "")
             reference = item.get("reference_answer", item.get("answer", ""))
@@ -125,7 +126,7 @@ class QAEvaluator:
             if not question:
                 continue
 
-            print(f"  [{i+1}/{len(test_data)}] 评估: {question[:50]}...")
+            logger.info(f"  [{i+1}/{len(test_data)}] 评估: {question[:50]}...")
             result = self.evaluate_single(question, reference or None)
             results.append(result)
 
@@ -310,8 +311,8 @@ class QAEvaluator:
 
             f.write("=" * 60 + "\n")
 
-        print(f"评估报告已保存: {report_path}")
-        print(f"评估摘要已保存: {summary_path}")
+        logger.info(f"评估报告已保存: {report_path}")
+        logger.info(f"评估摘要已保存: {summary_path}")
 
         return report_path
 

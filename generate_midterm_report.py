@@ -109,6 +109,7 @@ def create_cover_page(doc):
         ("专    业：", "计算机科学与技术"),
         ("学号姓名：", "2025212413    毛树林"),
         ("课程名称：", "自然语言处理"),
+        ("指导教师：", "贾真"),
     ]
     
     info_table = doc.add_table(rows=len(info_items), cols=2)
@@ -164,6 +165,7 @@ def create_toc_page(doc):
         ("  2.2 核心模块实现", 2),
         ("  2.3 前后端实现", 2),
         ("  2.4 评估模块实现", 2),
+        ("  2.5 代码质量优化", 2),
         ("三、进度完成情况", 1),
         ("  3.1 实际进度对照", 2),
         ("  3.2 已实现功能清单", 2),
@@ -196,12 +198,14 @@ def create_body_content(doc):
     
     abstract_text = (
         "本中期报告总结了《基于大语言模型的智能问答方法研究与实现》课程设计的阶段性进展。"
-        "截至目前，项目已完成文献调研与原理分析、系统架构设计、核心模块开发等关键任务，"
-        "成功构建了一个基于检索增强生成（RAG）架构的智能问答系统原型。系统实现了文档加载与分块、"
-        "向量化存储与检索、大语言模型调用与回答生成、RESTful API服务以及Streamlit交互界面等完整功能链条，"
-        "支持OpenAI API、智谱API和本地模型三种LLM后端方案。评估模块也已开发完成，"
-        "支持精确匹配、Token F1、ROUGE-L等自动评估指标。后续工作计划聚焦于知识库建设、"
-        "系统性测试评估与报告撰写。"
+        "截至目前，项目已按计划完成文献调研与原理分析、系统架构设计、核心模块开发等关键任务，"
+        "成功构建了一个基于检索增强生成（RAG）架构的智能问答系统原型。系统实现了涵盖文档加载与分块、"
+        "文本向量化与FAISS索引存储、向量相似度检索、大语言模型调用与回答生成、RESTful API服务以及"
+        "Streamlit交互界面等的完整功能链条，支持智谱GLM API、OpenAI API和本地Qwen2模型三种LLM后端方案。"
+        "系统采用模块化分层架构（core/api/services/ui/utils/models），实现了策略模式、工厂模式和延迟加载等设计模式。"
+        "评估模块已开发完成，支持精确匹配（Exact Match）、Token F1、ROUGE-L等多种自动评估指标。"
+        "代码质量方面，已完成loguru日志系统引入、jieba中文分词优化、Pydantic模型重构、ZhipuClient配置统一等优化工作。"
+        "后续工作将聚焦于知识库建设、系统性测试评估与课程设计报告撰写。"
     )
     add_paragraph_with_format(doc, abstract_text, font_size=14, font_name="宋体",
                               first_line_indent=0.74, space_after=6)
@@ -216,15 +220,19 @@ def create_body_content(doc):
     
     abstract_en = (
         "This interim report summarizes the progress of the course project "
-        ""Research and Implementation of Intelligent Question Answering Methods Based on Large Language Models." "
+        "\"Research and Implementation of Intelligent Question Answering Methods Based on Large Language Models.\" "
         "To date, the project has completed key tasks including literature review and theoretical analysis, "
-        "system architecture design, and core module development, successfully building a prototype of an "
-        "intelligent QA system based on the RAG architecture. The system implements the complete functional "
-        "pipeline including document loading and chunking, vectorization storage and retrieval, LLM invocation "
-        "and answer generation, RESTful API services, and a Streamlit interactive interface. It supports three "
-        "LLM backend solutions: OpenAI API, Zhipu API, and local models. The evaluation module supports "
-        "automatic metrics such as Exact Match, Token F1, and ROUGE-L. Future work will focus on knowledge "
-        "base construction, systematic testing and evaluation, and report writing."
+        "system architecture design, and core module development, successfully building a prototype intelligent "
+        "QA system based on the Retrieval-Augmented Generation (RAG) architecture. The system implements the "
+        "complete functional pipeline: document loading and chunking, text vectorization with FAISS indexing, "
+        "vector similarity retrieval, LLM invocation and answer generation, RESTful API services, and a "
+        "Streamlit interactive interface. It supports three LLM backend solutions: Zhipu GLM API, OpenAI API, "
+        "and local Qwen2 models. The system adopts a modular layered architecture with design patterns including "
+        "Strategy, Factory Method, and Lazy Loading. The evaluation module supports automatic metrics such as "
+        "Exact Match, Token F1, and ROUGE-L. Code quality improvements include loguru logging, jieba-based "
+        "Chinese tokenization, Pydantic model refactoring, and ZhipuClient configuration unification. "
+        "Future work will focus on knowledge base construction, systematic testing and evaluation, and "
+        "report writing."
     )
     add_paragraph_with_format(doc, abstract_en, font_size=12, font_name="Times New Roman",
                               first_line_indent=0, space_after=6)
@@ -241,26 +249,27 @@ def create_body_content(doc):
     
     add_paragraph_with_format(doc, "1.1 项目目标", font_size=16, bold=True,
                               font_name="宋体", space_before=10, space_after=6)
-    
-    add_paragraph_with_format(doc, 
-        "本课题的研究目标为：研究基于大语言模型的智能问答方法的实现原理，并实现一个完整的智能问答系统原型。"
-        "围绕这一目标，重点研究以下两个核心问题：",
+
+    add_paragraph_with_format(doc,
+        "本课题来源于《自然语言处理》课程设计，选题为“基于大语言模型的智能问答方法研究与实现”。"
+        "研究目标是研究基于大语言模型的智能问答方法的实现原理，并实现一个完整的智能问答系统原型。"
+        "围绕这一目标，本课题聚焦以下两个核心研究问题：",
         font_size=14, font_name="宋体", first_line_indent=0.74, space_after=4)
-    
+
     problems = [
-        "大语言模型实现智能问答的原理是什么？包括Transformer架构如何处理自然语言输入、预训练如何赋予模型问答能力、自回归生成如何逐步产出回答。",
-        "如何实现一个基于大语言模型的智能问答系统？包括模型部署、后端推理服务搭建、前端交互界面实现、系统集成与功能测试。"
+        "问题一：大语言模型实现智能问答的原理是什么？具体包括Transformer架构如何处理自然语言输入、预训练如何赋予模型问答能力、自回归生成如何逐步产出回答。",
+        "问题二：如何实现一个基于大语言模型的智能问答系统？具体包括模型部署、后端推理服务搭建、前端交互界面实现、系统集成与功能测试。"
     ]
     for i, problem in enumerate(problems):
-        add_paragraph_with_format(doc, f"（{i+1}）{problem}", font_size=14, 
+        add_paragraph_with_format(doc, f"（{i+1}）{problem}", font_size=14,
                                   font_name="宋体", first_line_indent=0.74, space_after=2)
-    
-    add_paragraph_with_format(doc, "1.2 开题计划回顾", font_size=16, bold=True,
-                              font_name="宋体", space_before=10, space_after=6)
-    
-    add_paragraph_with_format(doc, 
-        "根据开题报告的进度安排，项目分为四个阶段，目前处于第二至第三阶段过渡期。",
-        font_size=14, font_name="宋体", first_line_indent=0.74, space_after=6)
+
+    add_paragraph_with_format(doc,
+        "围绕上述研究问题，本课题的研究内容从实现原理和系统实现两个层面展开：一是系统梳理大语言模型"
+        "实现智能问答的技术原理，包括Transformer架构、预训练机制和自回归生成过程；二是选定开源大语言模型"
+        "作为底座，参考RAG等智能问答系统架构，设计并实现一个包含模型部署、后端推理服务和前端交互界面的"
+        "完整智能问答系统原型。",
+        font_size=14, font_name="宋体", first_line_indent=0.74, space_after=4)
     
     # 表1 开题计划
     add_paragraph_with_format(doc, "表1 开题计划进度表", font_size=12, bold=True,
@@ -453,12 +462,26 @@ def create_body_content(doc):
     add_paragraph_with_format(doc, "2.4 评估模块实现", font_size=16, bold=True,
                               font_name="宋体", space_before=10, space_after=6)
     
-    add_paragraph_with_format(doc, 
+    add_paragraph_with_format(doc,
         "评估模块（QAEvaluator）支持加载多种格式的测试数据（JSON/JSONL/TXT），对问答结果进行自动评估。"
         "实现了精确匹配（Exact Match）、Token F1分数、ROUGE-L（基于最长公共子序列）等自动评估指标，"
         "同时记录响应时间和检索覆盖率等性能指标。评估结果自动保存为JSON和TXT格式的报告，支持批量评估和汇总统计。",
         font_size=14, font_name="宋体", first_line_indent=0.74, space_after=4)
-    
+
+    add_paragraph_with_format(doc, "2.5 代码质量优化", font_size=16, bold=True,
+                              font_name="宋体", space_before=10, space_after=6)
+
+    add_paragraph_with_format(doc,
+        "在系统核心功能开发完成后，对代码进行了全面的质量审查与优化，主要改进包括："
+        "（1）引入loguru日志框架替换原有print()输出，按照日志级别（INFO/WARNING/ERROR）统一管理所有核心模块的运行时信息；"
+        "（2）优化嵌入管理器的中文分词降级方案，优先使用jieba进行中文分词以提高分词质量；"
+        "（3）重构API层数据模型，将Pydantic模型从server.py中独立到app/models/schemas.py，提升代码组织性；"
+        "（4）统一ZhipuClient的API地址配置，改为从Settings中读取BASE_URL，与OpenAIClient行为保持一致；"
+        "（5）修正LocalModelClient的对话模板为Qwen2标准格式（<|im_start|>），提升本地模型兼容性；"
+        "（6）实现PII过滤工具（filter_pii.py），支持扫描和替换代码中的个人敏感信息；"
+        "（7）补充.env.example环境变量配置示例，降低项目上手门槛。",
+        font_size=14, font_name="宋体", first_line_indent=0.74, space_after=4)
+
     doc.add_page_break()
     
     # ===== 三、进度完成情况 =====
@@ -525,7 +548,7 @@ def create_body_content(doc):
                               alignment=WD_ALIGN_PARAGRAPH.CENTER, font_name="宋体",
                               space_before=6, space_after=4)
     
-    func_table = doc.add_table(rows=10, cols=3)
+    func_table = doc.add_table(rows=11, cols=3)
     func_table.alignment = WD_TABLE_ALIGNMENT.CENTER
     add_table_borders(func_table)
     
@@ -550,6 +573,7 @@ def create_body_content(doc):
         ["评估模块", "Exact Match / Token F1 / ROUGE-L", "已完成"],
         ["知识库管理", "上传/删除/清空/统计", "已完成"],
         ["系统配置", "多提供者切换/参数可配置/延迟加载", "已完成"],
+        ["代码质量优化", "loguru日志/jieba分词/模型重构/配置统一", "已完成"],
     ]
     for row_idx, row_data in enumerate(func_data):
         for col_idx, cell_text in enumerate(row_data):
@@ -714,9 +738,9 @@ def main():
     create_body_content(doc)
     
     # 保存文档
-    output_path = os.path.join(os.path.dirname(__file__), "中期报告_基于大语言模型的智能问答方法研究与实现.docx")
+    output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "中期报告_基于大语言模型的智能问答方法研究与实现.docx")
     doc.save(output_path)
-    print(f"✅ Word文档已生成: {output_path}")
+    print(f"[OK] Word document generated: {output_path}")
 
 
 if __name__ == "__main__":

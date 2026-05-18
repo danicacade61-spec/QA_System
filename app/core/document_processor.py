@@ -8,6 +8,8 @@ import re
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
+from loguru import logger
+
 from app.core.config import settings
 
 
@@ -147,9 +149,9 @@ class DocumentProcessor:
                 try:
                     chunks = self.process_document(str(file_path))
                     all_chunks.extend(chunks)
-                    print(f"  ✓ 已处理: {file_path.name} → {len(chunks)} 个分块")
+                    logger.info(f"  ✓ 已处理: {file_path.name} → {len(chunks)} 个分块")
                 except Exception as e:
-                    print(f"  ✗ 处理失败: {file_path.name} - {e}")
+                    logger.warning(f"  ✗ 处理失败: {file_path.name} - {e}")
 
         return all_chunks
 

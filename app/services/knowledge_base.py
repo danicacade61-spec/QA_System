@@ -7,6 +7,8 @@ import json
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
+from loguru import logger
+
 from app.core.config import settings
 
 
@@ -107,7 +109,7 @@ class KnowledgeBase:
         for file_path in file_paths:
             result = self.add_document(file_path)
             results.append(result)
-            print(f"  {'✓' if result['success'] else '✗'} {Path(file_path).name}: {result.get('message', result.get('error', ''))}")
+            logger.info(f"  {'✓' if result['success'] else '✗'} {Path(file_path).name}: {result.get('message', result.get('error', ''))}")
         return results
 
     def add_document_directory(self, dir_path: str) -> Dict[str, Any]:
@@ -158,7 +160,7 @@ class KnowledgeBase:
         del self._documents_index[file_name]
         self._save_documents_index()
 
-        print(f"已删除文档: {file_name}")
+        logger.info(f"已删除文档: {file_name}")
         return True
 
     def list_documents(self) -> List[Dict[str, Any]]:
@@ -190,7 +192,7 @@ class KnowledgeBase:
         vector_store.clear()
         self._documents_index = {}
         self._save_documents_index()
-        print("知识库已清空")
+        logger.info("知识库已清空")
 
 
 # 全局实例

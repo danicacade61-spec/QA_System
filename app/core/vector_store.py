@@ -9,6 +9,7 @@ from typing import List, Dict, Any, Optional
 from pathlib import Path
 
 import numpy as np
+from loguru import logger
 
 from app.core.config import settings
 
@@ -72,9 +73,9 @@ class VectorStore:
                     self._chunk_meta = json.load(f)
                 self._next_id = len(self._id_map)
                 self._dimension = self._index.d
-                print(f"已加载向量索引，共 {len(self._id_map)} 个文档块")
+                logger.info(f"已加载向量索引，共 {len(self._id_map)} 个文档块")
             except Exception as e:
-                print(f"加载索引失败，将创建新索引: {e}")
+                logger.warning(f"加载索引失败，将创建新索引: {e}")
                 self._init_index()
         else:
             self._init_index()
@@ -101,7 +102,7 @@ class VectorStore:
 
         # 确保向量维度匹配
         if embeddings.shape[1] != self._dimension:
-            print(f"向量维度不匹配: 期望 {self._dimension}, 实际 {embeddings.shape[1]}")
+            logger.warning(f"向量维度不匹配: 期望 {self._dimension}, 实际 {embeddings.shape[1]}")
             return []
 
         # 准备ID
@@ -126,7 +127,7 @@ class VectorStore:
 
         # 保存
         self._save_index()
-        print(f"已添加 {len(texts)} 个文档块到向量库")
+        logger.info(f"已添加 {len(texts)} 个文档块到向量库")
         return ids.tolist()
 
     def similarity_search(self, query: str, k: int = None) -> List[Dict[str, Any]]:
@@ -196,7 +197,7 @@ class VectorStore:
         self._chunk_meta = {}
         self._next_id = 0
         self._save_index()
-        print("向量库已清空")
+        logger.info("向量库已清空")
 
     def _rebuild_index(self):
         """重建索引（删除操作后需要重建）"""

@@ -7,6 +7,8 @@ import json
 from typing import Optional, List, Dict, Any, Generator
 from abc import ABC, abstractmethod
 
+from loguru import logger
+
 from app.core.config import settings
 
 
@@ -101,8 +103,9 @@ class OpenAIClient(BaseLLMClient):
 class ZhipuClient(BaseLLMClient):
     """智谱 ChatGLM API 客户端"""
 
-    def __init__(self, api_key: str = None, model: str = "glm-4"):
+    def __init__(self, api_key: str = None, base_url: str = None, model: str = "glm-4"):
         self.api_key = api_key or settings.API_KEY
+        self.base_url = base_url or settings.API_BASE_URL
         self.model = model
 
     def chat(self, messages: List[Dict[str, str]], **kwargs) -> str:
@@ -123,7 +126,7 @@ class ZhipuClient(BaseLLMClient):
 
             with httpx.Client(timeout=60.0) as client:
                 response = client.post(
-                    "https://open.bigmodel.cn/api/paas/v4/chat/completions",
+                    f"{self.base_url}/chat/completions",
                     headers=headers,
                     json=payload
                 )
@@ -150,7 +153,7 @@ class ZhipuClient(BaseLLMClient):
             }
 
             with httpx.Client(timeout=120.0) as client:
-                with client.stream("POST", "https://open.bigmodel.cn/api/paas/v4/chat/completions",
+                with client.stream("POST", f"{self.base_url}/chat/completions",
                                    headers=headers, json=payload) as response:
                     for line in response.iter_lines():
                         if line:
@@ -188,7 +191,7 @@ class LocalModelClient(BaseLLMClient):
             import torch
 
             model_id = self.model_path or self.model_name
-            print(f"正在加载本地模型: {model_id} ...")
+            logger.info(f"正在加载本地模型: {model_id} ...")
 
             self._tokenizer = AutoTokenizer.from_pretrained(
                 model_id, trust_remote_code=True
@@ -199,7 +202,7 @@ class LocalModelClient(BaseLLMClient):
                 device_map="auto" if torch.cuda.is_available() else None,
                 trust_remote_code=True
             )
-            print("本地模型加载完成")
+            logger.info("本地模型加载完成")
         except Exception as e:
             raise RuntimeError(f"加载本地模型失败: {e}")
 
@@ -239,18 +242,13 @@ class LocalModelClient(BaseLLMClient):
         yield self.chat(messages, **kwargs)
 
     def _build_prompt(self, messages: List[Dict[str, str]]) -> str:
-        """构建模型输入提示词"""
+        """构建模型输入提示词（Qwen2 对话模板格式）"""
         prompt = ""
         for msg in messages:
             role = msg.get("role", "user")
             content = msg.get("content", "")
-            if role == "system":
-                prompt += f"<|system|>\n{content}\n"
-            elif role == "user":
-                prompt += f"<|user|>\n{content}\n"
-            elif role == "assistant":
-                prompt += f"<|assistant|>\n{content}\n"
-        prompt += "<|assistant|>\n"
+            prompt += f"<|im_start|>{role}\n{content}<|im_end|>\n"
+        prompt += "<|im_start|>assistant\n"
         return prompt
 
 

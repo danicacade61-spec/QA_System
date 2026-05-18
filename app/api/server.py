@@ -3,16 +3,17 @@ API服务器模块
 基于FastAPI实现的RESTful API，提供智能问答系统的后端服务
 """
 
-import os
 import json
-from typing import List, Optional
 from pathlib import Path
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 
 from app.core.config import settings
+from app.models.schemas import (
+    QueryRequest, QueryResponse, ChatHistoryClearResponse,
+    KBStatsResponse, AddDocResponse
+)
 
 
 def _get_rag_engine():
@@ -25,45 +26,6 @@ def _get_knowledge_base():
     """延迟获取知识库"""
     from app.services.knowledge_base import knowledge_base
     return knowledge_base
-
-
-# ---------- Pydantic 数据模型 ----------
-
-class QueryRequest(BaseModel):
-    """查询请求"""
-    question: str
-    top_k: Optional[int] = settings.RETRIEVAL_TOP_K
-    use_stream: Optional[bool] = False
-
-
-class QueryResponse(BaseModel):
-    """查询响应"""
-    question: str
-    answer: str
-    retrieved_docs: list
-    has_context: bool
-
-
-class ChatHistoryClearResponse(BaseModel):
-    """清空历史响应"""
-    success: bool
-    message: str
-
-
-class KBStatsResponse(BaseModel):
-    """知识库统计响应"""
-    document_count: int
-    chunk_count: int
-    documents: list
-
-
-class AddDocResponse(BaseModel):
-    """添加文档响应"""
-    success: bool
-    file_name: Optional[str] = None
-    chunk_count: Optional[int] = None
-    message: Optional[str] = None
-    error: Optional[str] = None
 
 
 # ---------- 创建FastAPI应用 ----------
