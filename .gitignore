@@ -45,15 +45,15 @@ midterm_report.html
 中期报告_*.pptx
 *.png
 
+# Office temp files
+~$*
+
 # Temp files
 _claude/
 _temp_*.py
 _template.md
 _opening_report.md
-_claude/
 .claude/
 
 # Generated reports
 _opening_report.md
-
-
