@@ -57,3 +57,7 @@ _opening_report.md
 
 # Generated reports
 _opening_report.md
+
+# Report generation scripts (contain personal info)
+generate_midterm_report.py
+generate_midterm_ppt.py

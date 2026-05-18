@@ -147,9 +147,9 @@ def build_knowledge_base(dir_path: str):
     print(f"正在从目录构建知识库: {dir_path}")
     result = knowledge_base.add_document_directory(dir_path)
     if result["success"]:
-        print(f"✅ {result['message']}")
+        print(f"[OK] {result['message']}")
     else:
-        print(f"❌ {result.get('error', '构建失败')}")
+        print(f"[FAIL] {result.get('error', '构建失败')}")
 
 
 def run_evaluation():
